@@ -1,360 +1,504 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Роман Рыжков — Frontend-разработчик</title>
-<meta name="description" content="Создаю быстрые, адаптивные и визуально привлекательные сайты. Лендинги, визитки, интернет-магазины под ключ.">
-<style>
-  :root{
-    --bg:#0b1120;
-    --bg-soft:#151e2e;
-    --accent:#38bdf8;
-    --accent-2:#818cf8;
-    --text:#e2e8f0;
-    --muted:#94a3b8;
-    --radius:14px;
-    --max:1100px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-    background:var(--bg);color:var(--text);line-height:1.6;
-  }
-  a{color:inherit;text-decoration:none}
-  .container{max-width:var(--max);margin:0 auto;padding:0 20px}
-  section{padding:80px 0}
-  h2{font-size:2rem;margin-bottom:12px;text-align:center}
-  .sub{text-align:center;color:var(--muted);margin-bottom:50px}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Роман Рыжков — Веб-разработчик</title>
+    <!-- Three.js для 3D-анимации -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b1120;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1; /* Сделал светлее для читаемости */
+            --accent: #38bdf8;
+            --accent-2: #818cf8;
+        }
 
-  /* Шапка */
-  header{
-    position:sticky;top:0;z-index:100;
-    background:rgba(11,17,32,.85);backdrop-filter:blur(10px);
-    border-bottom:1px solid rgba(255,255,255,.06);
-  }
-  .nav{display:flex;align-items:center;justify-content:space-between;height:70px}
-  .logo{font-weight:700;font-size:1.2rem}
-  .logo span{color:var(--accent)}
-  .menu{display:flex;gap:26px;list-style:none}
-  .menu a{color:var(--muted);transition:.2s}
-  .menu a:hover{color:var(--accent)}
-  .btn{
-    display:inline-block;padding:12px 26px;border-radius:var(--radius);
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    color:#0b1120;font-weight:600;transition:.25s;border:none;cursor:pointer;
-  }
-  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(56,189,248,.3)}
-  .btn-outline{background:transparent;color:var(--accent);border:2px solid var(--accent)}
-  .btn-outline:hover{background:var(--accent);color:#0b1120}
-  .burger{display:none;font-size:1.6rem;background:none;border:none;color:var(--text);cursor:pointer}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
 
-  /* Первый экран */
-  .hero{
-    min-height:calc(100vh - 70px);display:flex;align-items:center;
-    background:radial-gradient(circle at 20% 30%,rgba(56,189,248,.12),transparent 50%),
-               radial-gradient(circle at 80% 70%,rgba(129,140,248,.1),transparent 50%);
-  }
-  .hero h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.15;margin-bottom:20px}
-  .hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .hero p{color:var(--muted);font-size:1.15rem;max-width:560px;margin-bottom:32px}
-  .hero-btns{display:flex;gap:16px;flex-wrap:wrap}
+        /* 3D ФОН */
+        #canvas-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-  /* Карточки */
-  .grid{display:grid;gap:24px}
-  .grid-3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-  .card{
-    background:var(--bg-soft);padding:32px;border-radius:var(--radius);
-    border:1px solid rgba(255,255,255,.06);transition:.25s;
-  }
-  .card:hover{transform:translateY(-4px);border-color:rgba(56,189,248,.3)}
-  .card .icon{font-size:2rem;margin-bottom:14px}
-  .card h3{margin-bottom:10px;font-size:1.2rem}
-  .card p{color:var(--muted);font-size:.95rem}
+        /* Весь контент поверх фона */
+        .content-layer {
+            position: relative;
+            z-index: 10;
+        }
 
-  /* Портфолио */
-  .work{
-    background:var(--bg-soft);border-radius:var(--radius);overflow:hidden;
-    border:1px solid rgba(255,255,255,.06);transition:.25s;
-  }
-  .work:hover{border-color:rgba(56,189,248,.3)}
-  .work .thumb{
-    height:200px;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(135deg,#151e2e,#0b1120);color:var(--muted);
-    font-size:3rem;
-  }
-  .work .info{padding:24px}
-  .work .info h3{margin-bottom:8px}
-  .work .info p{color:var(--muted);font-size:.92rem;margin-bottom:8px}
-  .tag{display:inline-block;font-size:.78rem;color:var(--accent);background:rgba(56,189,248,.1);padding:3px 10px;border-radius:20px;margin-right:6px;margin-top:6px}
+        /* ШАПКА */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: transparent;
+            z-index: 100;
+            padding: 30px 0;
+            transition: padding 0.3s;
+        }
+        .nav-content {
+            max-width: 1100px; margin: 0 auto; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+        .logo span { color: var(--accent); }
+        .nav-links a {
+            color: var(--text-muted); text-decoration: none; margin-left: 26px;
+            font-size: 0.95rem; transition: color 0.3s; font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        }
+        .nav-links a:hover { color: var(--text-main); }
+        .nav-btn {
+            padding: 10px 24px; border-radius: 30px;
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent); font-weight: 600; text-decoration: none;
+            transition: 0.3s; margin-left: 20px;
+        }
+        .nav-btn:hover { background: var(--accent); color: #0b1120; box-shadow: 0 0 15px rgba(56,189,248,0.4); }
+        .burger { display: none; font-size: 1.6rem; background: none; border: none; color: var(--text-main); cursor: pointer; }
 
-  /* Процесс */
-  .steps{counter-reset:step;display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-  .step{background:var(--bg-soft);padding:28px;border-radius:var(--radius);position:relative;border:1px solid rgba(255,255,255,.06)}
-  .step::before{
-    counter-increment:step;content:counter(step);
-    display:flex;align-items:center;justify-content:center;
-    width:42px;height:42px;border-radius:50%;margin-bottom:16px;
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    color:#0b1120;font-weight:700;font-size:1.1rem;
-  }
-  .step h3{margin-bottom:8px;font-size:1.05rem}
-  .step p{color:var(--muted);font-size:.9rem}
+        /* ПЕРВЫЙ ЭКРАН */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.9); /* Усиленная тень */
+        }
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: clamp(1.1rem, 2vw, 1.25rem);
+            color: var(--text-muted);
+            max-width: 650px;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.9); /* Усиленная тень */
+        }
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #0b1120;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: none; cursor: pointer; font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(56,189,248,0.3);
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.5);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+            color: var(--text-main);
+            margin-left: 15px;
+            box-shadow: none;
+        }
+        .btn-outline:hover { border-color: var(--accent); background: rgba(56,189,248,0.1); color: var(--accent); box-shadow: none;}
 
-  /* Цены */
-  .price{background:var(--bg-soft);padding:36px 28px;border-radius:var(--radius);border:1px solid rgba(255,255,255,.06);text-align:center;transition:.25s}
-  .price:hover{transform:translateY(-4px)}
-  .price.featured{border-color:var(--accent);position:relative;background:linear-gradient(180deg,rgba(56,189,248,.06),var(--bg-soft))}
-  .price.featured::after{content:"Популярно";position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#0b1120;font-size:.75rem;font-weight:700;padding:4px 16px;border-radius:20px;white-space:nowrap}
-  .price h3{margin-bottom:6px}
-  .price .amount{font-size:1.8rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:14px 0}
-  .price ul{list-style:none;color:var(--muted);font-size:.9rem;margin-bottom:22px;text-align:left}
-  .price ul li{padding:5px 0;padding-left:22px;position:relative}
-  .price ul li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:700}
+        /* СЕКЦИИ */
+        .section { padding: 120px 20px; max-width: 1000px; margin: 0 auto; }
+        .section-title {
+            font-size: 2.2rem; margin-bottom: 16px; text-align: center;
+            font-weight: 800;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.9);
+        }
+        .section-sub {
+            text-align: center; color: var(--text-muted);
+            margin-bottom: 60px; font-size: 1.1rem;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+        }
 
-  /* Контакты */
-  .contact-wrap{display:grid;gap:40px;grid-template-columns:1fr 1fr;align-items:start}
-  .contact-info p{color:var(--muted);margin-bottom:14px}
-  .contact-info .item{display:flex;gap:12px;margin-bottom:16px;align-items:center;font-size:1.05rem}
-  .contact-info .item a{color:var(--accent);transition:.2s}
-  .contact-info .item a:hover{color:var(--accent-2)}
-  form{display:flex;flex-direction:column;gap:14px}
-  input,textarea{
-    background:var(--bg-soft);border:1px solid rgba(255,255,255,.1);
-    padding:14px 16px;border-radius:10px;color:var(--text);font-size:1rem;
-    font-family:inherit;transition:.2s;
-  }
-  input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
-  textarea{resize:vertical;min-height:110px}
-  .form-note{font-size:.8rem;color:var(--muted)}
+        /* УСЛУГИ */
+        .services-grid { 
+            display: grid; 
+            gap: 40px; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+        }
+        .service-item {
+            text-align: center;
+            padding: 20px;
+            transition: transform 0.3s;
+        }
+        .service-item:hover { transform: translateY(-5px); }
+        .service-icon { font-size: 2.5rem; margin-bottom: 16px; }
+        .service-item h3 { 
+            margin-bottom: 12px; font-size: 1.3rem; color: var(--accent);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+        }
+        .service-item p { 
+            color: var(--text-main); font-size: 0.95rem; 
+            text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+        }
 
-  /* Подвал */
-  footer{border-top:1px solid rgba(255,255,255,.06);padding:28px 0;text-align:center;color:var(--muted);font-size:.88rem}
+        /* ЦЕНЫ */
+        .prices-grid { 
+            display: grid; 
+            gap: 40px; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+        }
+        .price-item {
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .price-item:hover { transform: translateY(-5px); }
+        .price-item h3 { 
+            font-size: 1.2rem; margin-bottom: 10px; color: var(--text-muted);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+        }
+        .price-amount {
+            font-size: 2.2rem; font-weight: 800; margin: 15px 0;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .price-features { 
+            list-style: none; text-align: center; margin-bottom: 25px; 
+            color: var(--text-main); font-size: 0.95rem;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+        }
+        .price-features li { padding: 4px 0; }
+        .price-link {
+            color: var(--accent); text-decoration: none; font-weight: 600;
+            border-bottom: 1px solid var(--accent); padding-bottom: 2px;
+            transition: 0.2s;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .price-link:hover { color: var(--accent-2); border-color: var(--accent-2); }
 
-  /* Адаптив */
-  @media(max-width:768px){
-    .burger{display:block}
-    .menu{
-      position:fixed;inset:70px 0 auto 0;flex-direction:column;gap:0;
-      background:var(--bg-soft);padding:0;max-height:0;overflow:hidden;transition:.3s;
-      border-bottom:1px solid rgba(255,255,255,.06);
-    }
-    .menu.open{max-height:400px;padding:20px 0}
-    .menu li{padding:12px 24px}
-    .nav .btn{display:none}
-    .contact-wrap{grid-template-columns:1fr}
-    section{padding:60px 0}
-    .price .amount{font-size:1.6rem}
-  }
-</style>
+        /* КОНТАКТЫ */
+        .contact-wrap { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: start; 
+        }
+        .contact-info .item { 
+            display: flex; gap: 12px; align-items: center; margin-bottom: 16px; font-size: 1.1rem; 
+            text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+        }
+        .contact-info .item a { color: var(--accent); text-decoration: none; transition: 0.2s; }
+        .contact-info .item a:hover { color: var(--accent-2); }
+        .contact-text { 
+            color: var(--text-muted); margin-bottom: 24px; font-size: 1.05rem;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+        }
+        
+        form { 
+            display: flex; flex-direction: column; gap: 20px; 
+        }
+        input, textarea {
+            background: transparent; 
+            border: none;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding: 10px 0; color: var(--text-main); font-size: 1.1rem;
+            font-family: inherit; transition: 0.3s;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.5); }
+        input:focus, textarea:focus { 
+            outline: none; 
+            border-bottom-color: var(--accent); 
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        .form-note { 
+            font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+        }
+
+        /* ПОДВАЛ */
+        footer { 
+            text-align: center; padding: 40px 20px; 
+            margin-top: 50px; border-top: 1px solid rgba(255,255,255,0.15);
+            position: relative; z-index: 10;
+        }
+        .social-links { margin-bottom: 20px; }
+        .social-links a { 
+            color: var(--text-muted); text-decoration: none; margin: 0 15px; 
+            font-size: 1.1rem; transition: color 0.3s; 
+            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+        }
+        .social-links a:hover { color: var(--accent); }
+        .copyright { 
+            color: var(--text-muted); font-size: 0.9rem; 
+            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+        }
+
+        /* АДАПТИВ */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .nav-btn { display: none; }
+            .burger { display: block; }
+            .hero h1 { font-size: 2.5rem; }
+            .contact-wrap { grid-template-columns: 1fr; gap: 40px; }
+            .section { padding: 80px 20px; }
+            .btn-outline { margin-left: 0; margin-top: 15px; display: block; text-align: center; }
+            .hero-btns { display: flex; flex-direction: column; width: 100%; max-width: 300px; }
+        }
+    </style>
 </head>
 <body>
 
-<!-- ШАПКА -->
-<header>
-  <div class="container nav">
-    <div class="logo">Роман<span>Рыжков</span></div>
-    <ul class="menu" id="menu">
-      <li><a href="#services">Услуги</a></li>
-      <li><a href="#portfolio">Портфолио</a></li>
-      <li><a href="#process">Процесс</a></li>
-      <li><a href="#prices">Цены</a></li>
-      <li><a href="#contact">Контакты</a></li>
-    </ul>
-    <a href="#contact" class="btn">Связаться</a>
-    <button class="burger" id="burger" aria-label="Меню">☰</button>
-  </div>
-</header>
+    <!-- 3D КАНВАС -->
+    <canvas id="canvas-bg"></canvas>
 
-<!-- ПЕРВЫЙ ЭКРАН -->
-<section class="hero">
-  <div class="container">
-    <h1>Привет, я Frontend<br><span>Разработчик</span></h1>
-    <p>Создаю быстрые, адаптивные и визуально привлекательные веб-приложения. От идеи до готового продукта в браузере.</p>
-    <div class="hero-btns">
-      <a href="#contact" class="btn">Заказать сайт</a>
-      <a href="https://xayryedel.github.io/partfolio/" target="_blank" rel="noopener" class="btn btn-outline">Смотреть работы</a>
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <div class="content-layer">
+        <nav>
+            <div class="nav-content">
+                <div class="logo">Роман<span>Рыжков</span></div>
+                <div class="nav-links">
+                    <a href="#services">Услуги</a>
+                    <a href="#prices">Цены</a>
+                    <a href="#contact">Контакты</a>
+                </div>
+                <a href="#contact" class="nav-btn">Связаться</a>
+                <button class="burger" id="burger">☰</button>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-badge">Более 2 лет на рынке веб-разработки</div>
+            <h1>Роман Рыжков<br><span>Веб-разработчик</span></h1>
+            <p>Профессионально создаю быстрые, адаптивные и визуально привлекательные сайты. От идеи до готового продукта в браузере.</p>
+            <div class="hero-btns">
+                <a href="#contact" class="btn">Заказать сайт</a>
+                <a href="https://xayryedel.github.io/partfolio/" target="_blank" class="btn btn-outline">Смотреть работы</a>
+            </div>
+        </section>
+
+        <section id="services" class="section">
+            <h2 class="section-title">Что я делаю</h2>
+            <p class="section-sub">За 2 года реализовал десятки проектов — от визиток до сложных веб-сервисов</p>
+            <div class="services-grid">
+                <div class="service-item">
+                    <div class="service-icon">🚀</div>
+                    <h3>Лендинг</h3>
+                    <p>Одностраничник под запуск продукта, рекламу или услугу. Продуманная структура, тексты, формы заявки.</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">💼</div>
+                    <h3>Сайт-визитка</h3>
+                    <p>Компактный сайт о компании или специалисте: кто вы, что делаете, контакты. Идеально для малого бизнеса.</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🛒</div>
+                    <h3>Интернет-магазин</h3>
+                    <p>Каталог товаров, корзина, оформление заказа. Подключаю оплату и доставку. Базовая SEO-оптимизация.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="prices" class="section">
+            <h2 class="section-title">Цены</h2>
+            <p class="section-sub">Вилки бюджета — точная стоимость после брифа</p>
+            <div class="prices-grid">
+                <div class="price-item">
+                    <h3>Визитка</h3>
+                    <div class="price-amount">от 2 000 ₽</div>
+                    <ul class="price-features">
+                        <li>1–3 страницы</li>
+                        <li>Адаптивная вёрстка</li>
+                        <li>Форма связи</li>
+                    </ul>
+                    <a href="#contact" class="price-link">Заказать →</a>
+                </div>
+                <div class="price-item">
+                    <h3>Лендинг</h3>
+                    <div class="price-amount">от 5 000 ₽</div>
+                    <ul class="price-features">
+                        <li>Продающая структура</li>
+                        <li>Дизайн под нишу</li>
+                        <li>Форма + аналитика</li>
+                    </ul>
+                    <a href="#contact" class="price-link">Заказать →</a>
+                </div>
+                <div class="price-item">
+                    <h3>Магазин</h3>
+                    <div class="price-amount">от 10 000 ₽</div>
+                    <ul class="price-features">
+                        <li>Каталог и корзина</li>
+                        <li>Онлайн-оплата</li>
+                        <li>Панель управления</li>
+                    </ul>
+                    <a href="#contact" class="price-link">Заказать →</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="section">
+            <h2 class="section-title">Свяжитесь со мной</h2>
+            <p class="section-sub">Отвечу в течение дня и предложу решение</p>
+            <div class="contact-wrap">
+                <div class="contact-info">
+                    <p class="contact-text">Работаю по всей России. Онлайн-созвоны, правки на всех этапах, гарантия на вёрстку — 30 дней.</p>
+                    <div class="item">📞 <a href="tel:+79803722936">+7 (980) 372-29-36</a></div>
+                    <div class="item">✈️ <a href="https://t.me/SPXLD" target="_blank">Telegram: @SPXLD</a></div>
+                </div>
+                <form action="https://formspree.io/f/meagvpgn" method="POST">
+                    <input type="text" name="name" placeholder="Ваше имя" required>
+                    <input type="text" name="contact" placeholder="Телефон или Telegram" required>
+                    <textarea name="message" placeholder="Опишите задачу..." required></textarea>
+                    <button type="submit" class="btn" style="margin-top: 10px;">Отправить заявку</button>
+                    <span class="form-note">Нажимая кнопку, вы соглашаетесь на обработку данных.</span>
+                </form>
+            </div>
+        </section>
+
+        <footer>
+            <div class="social-links">
+                <a href="https://t.me/SPXLD" target="_blank">Telegram</a>
+                <a href="https://github.com/xayryedel" target="_blank">GitHub</a>
+                <a href="https://xayryedel.github.io/partfolio/" target="_blank">Портфолио</a>
+            </div>
+            <div class="copyright">© 2026 Роман Рыжков. Опыт коммерческой разработки — 2 года.</div>
+        </footer>
     </div>
-  </div>
-</section>
 
-<!-- УСЛУГИ -->
-<section id="services">
-  <div class="container">
-    <h2>Что я делаю</h2>
-    <p class="sub">Три формата — под разные задачи и бюджеты</p>
-    <div class="grid grid-3">
-      <div class="card">
-        <div class="icon">🚀</div>
-        <h3>Лендинг</h3>
-        <p>Одностраничник под запуск продукта, рекламу или услугу. Продуманная структура, тексты, формы заявки.</p>
-      </div>
-      <div class="card">
-        <div class="icon">💼</div>
-        <h3>Сайт-визитка</h3>
-        <p>Компактный сайт о компании или специалисте: кто вы, что делаете, контакты. Идеально для малого бизнеса.</p>
-      </div>
-      <div class="card">
-        <div class="icon">🛒</div>
-        <h3>Интернет-магазин</h3>
-        <p>Каталог товаров, корзина, оформление заказа. Подключаю оплату и доставку. Базовая SEO-оптимизация.</p>
-      </div>
-    </div>
-  </div>
-</section>
+    <!-- СКРИПТЫ -->
+    <script>
+        document.getElementById('burger').addEventListener('click', function() {
+            alert('Используйте кнопку "Связаться" или прокрутите вниз.');
+        });
 
-<!-- ПОРТФОЛИО -->
-<section id="portfolio" style="background:var(--bg-soft)">
-  <div class="container">
-    <h2>Мои работы</h2>
-    <p class="sub">Примеры проектов — задача, решение, результат</p>
-    <div class="grid grid-3">
-      <div class="work">
-        <div class="thumb">💻</div>
-        <div class="info">
-          <h3>Портфолио Frontend-разработчика</h3>
-          <p><strong>Задача:</strong> Создать личное портфолио с адаптивным дизайном и быстрой загрузкой.</p>
-          <p><strong>Результат:</strong> Чистый код, адаптив под все устройства, готовность к презентации заказчикам.</p>
-          <span class="tag">HTML/CSS</span><span class="tag">Адаптив</span>
-        </div>
-      </div>
-      <div class="work">
-        <div class="thumb">📱</div>
-        <div class="info">
-          <h3>Мобильное веб-приложение</h3>
-          <p><strong>Задача:</strong> Интерфейс для работы с задачами прямо в браузере.</p>
-          <p><strong>Результат:</strong> Плавные анимации, интуитивная навигация, работа без перезагрузок.</p>
-          <span class="tag">JavaScript</span><span class="tag">UI/UX</span>
-        </div>
-      </div>
-      <div class="work">
-        <div class="thumb">🎨</div>
-        <div class="info">
-          <h3>Лендинг для услуги</h3>
-          <p><strong>Задача:</strong> Продающая страница с формой заявки и преимуществами.</p>
-          <p><strong>Результат:</strong> Структурированный контент, призывы к действию, готовность к запуску рекламы.</p>
-          <span class="tag">Лендинг</span><span class="tag">Формы</span>
-        </div>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:40px">
-      <a href="https://xayryedel.github.io/partfolio/" target="_blank" rel="noopener" class="btn btn-outline">Открыть полное портфолио →</a>
-    </div>
-  </div>
-</section>
+        // ==========================================
+        // 3D ВОЛНОВОЙ ФОН НА THREE.JS (Замедлен)
+        // ==========================================
+        const canvas = document.getElementById('canvas-bg');
+        const scene = new THREE.Scene();
+        
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 10;
+        camera.position.y = 2;
+        camera.rotation.x = 0.2;
 
-<!-- ПРОЦЕСС -->
-<section id="process">
-  <div class="container">
-    <h2>Как я работаю</h2>
-    <p class="sub">Прозрачный процесс — вы всегда знаете, на каком этапе проект</p>
-    <div class="steps">
-      <div class="step"><h3>Бриф</h3><p>Обсуждаем задачу, целевую аудиторию и пожелания. Уточняю детали.</p></div>
-      <div class="step"><h3>Макет</h3><p>Создаю прототип и дизайн. Согласовываем внешний вид до вёрстки.</p></div>
-      <div class="step"><h3>Вёрстка</h3><p>Превращаю макет в адаптивный код. Проверяю на всех устройствах.</p></div>
-      <div class="step"><h3>Запуск</h3><p>Подключаю домен, настраиваю формы и передаю проект. Обучаю управлению.</p></div>
-    </div>
-  </div>
-</section>
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
 
-<!-- ЦЕНЫ -->
-<section id="prices" style="background:var(--bg-soft)">
-  <div class="container">
-    <h2>Цены</h2>
-    <p class="sub">Вилки бюджета — точная стоимость после брифа</p>
-    <div class="grid grid-3">
-      <div class="price">
-        <h3>Визитка</h3>
-        <div class="amount">от 25 000 ₽</div>
-        <ul>
-          <li>1–3 страницы</li>
-          <li>Адаптивная вёрстка</li>
-          <li>Форма связи</li>
-          <li>Срок: 3–5 дней</li>
-        </ul>
-        <a href="#contact" class="btn btn-outline">Заказать</a>
-      </div>
-      <div class="price featured">
-        <h3>Лендинг</h3>
-        <div class="amount">от 45 000 ₽</div>
-        <ul>
-          <li>Продающая структура</li>
-          <li>Дизайн под вашу нишу</li>
-          <li>Форма заявки + аналитика</li>
-          <li>Срок: 5–7 дней</li>
-        </ul>
-        <a href="#contact" class="btn">Заказать</a>
-      </div>
-      <div class="price">
-        <h3>Магазин</h3>
-        <div class="amount">от 80 000 ₽</div>
-        <ul>
-          <li>Каталог и корзина</li>
-          <li>Онлайн-оплата</li>
-          <li>Панель управления</li>
-          <li>Срок: 7–14 дней</li>
-        </ul>
-        <a href="#contact" class="btn btn-outline">Заказать</a>
-      </div>
-    </div>
-  </div>
-</section>
+        const width = 30;
+        const depth = 30;
+        const segments = 50;
+        
+        const geometry = new THREE.PlaneGeometry(width, depth, segments, segments);
+        
+        // Сделал чуть прозрачнее для лучшей читаемости
+        const material = new THREE.MeshBasicMaterial({ 
+            color: 0x38bdf8, 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.2 
+        });
 
-<!-- КОНТАКТЫ -->
-<section id="contact">
-  <div class="container">
-    <h2>Свяжитесь со мной</h2>
-    <p class="sub">Отвечу в течение дня и предложу решение под вашу задачу</p>
-    <div class="contact-wrap">
-      <div class="contact-info">
-        <div class="item">📞 <a href="tel:+79803722936">+7 (980) 372-29-36</a></div>
-        <div class="item">✈️ <a href="https://t.me/SPXLD" target="_blank" rel="noopener">Telegram: @SPXLD</a></div>
-        <p style="margin-top:24px">Работаю по всей России. Онлайн-созвоны, правки на всех этапах, гарантия на вёрстку — 30 дней.</p>
-      </div>
+        const plane = new THREE.Mesh(geometry, material);
+        plane.rotation.x = -Math.PI / 2;
+        scene.add(plane);
 
-      <!-- Форма Formspree -->
-      <form action="https://formspree.io/f/meagvpgn" method="POST">
-        <input type="text" name="name" placeholder="Ваше имя" required>
-        <input type="text" name="contact" placeholder="Телефон или Telegram" required>
-        <textarea name="message" placeholder="Опишите задачу: какой сайт нужен, для чего, есть ли примеры" required></textarea>
-        <button type="submit" class="btn">Отправить заявку</button>
-        <span class="form-note">Нажимая кнопку, вы соглашаетесь на обработку персональных данных.</span>
-      </form>
-    </div>
-  </div>
-</section>
+        const material2 = new THREE.MeshBasicMaterial({ 
+            color: 0x818cf8, 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.1 
+        });
+        const plane2 = new THREE.Mesh(geometry, material2);
+        plane2.rotation.x = -Math.PI / 2;
+        plane2.position.y = -2;
+        plane2.scale.set(1.2, 1.2, 1.2);
+        scene.add(plane2);
 
-<!-- ПОДВАЛ -->
-<footer>
-  <div class="container">© 2026 Роман Рыжков — Frontend-разработчик. Все права защищены.</div>
-</footer>
+        let mouseX = 0;
+        let mouseY = 0;
+        window.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
 
-<script>
-  // Мобильное меню
-  const burger = document.getElementById('burger');
-  const menu = document.getElementById('menu');
-  burger.addEventListener('click', () => menu.classList.toggle('open'));
-  menu.querySelectorAll('a').forEach(a =>
-    a.addEventListener('click', () => menu.classList.remove('open'))
-  );
+        const clock = new THREE.Clock();
 
-  // Появление секций
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.style.opacity = 1;
-        e.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, { threshold: 0.1 });
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Замедлили время анимации (было 1.5, стало 0.5)
+            const time = clock.getElapsedTime() * 0.5; 
 
-  document.querySelectorAll('section').forEach(s => {
-    s.style.opacity = 0;
-    s.style.transform = 'translateY(20px)';
-    s.style.transition = 'opacity .6s ease, transform .6s ease';
-    observer.observe(s);
-  });
-</script>
+            const positions = geometry.attributes.position.array;
+
+            for (let i = 0; i < positions.length; i += 3) {
+                const x = positions[i];
+                const y = positions[i + 1]; 
+
+                // Замедленные волны
+                const waveX = Math.sin(x * 0.5 + time * 0.8) * 0.5;
+                const waveY = Math.cos(y * 0.5 + time * 0.6) * 0.5;
+                const waveCombo = Math.sin(x * 0.3 + y * 0.3 + time * 0.5) * 0.8;
+
+                positions[i + 2] = waveX + waveY + waveCombo;
+            }
+
+            geometry.attributes.position.needsUpdate = true;
+
+            // Плавное движение камеры (тоже замедлил)
+            camera.position.x += (mouseX * 2 - camera.position.x) * 0.03;
+            camera.position.y += (mouseY * 1.5 + 2 - camera.position.y) * 0.03;
+            camera.lookAt(scene.position);
+
+            // Вращение сцены (очень медленное)
+            plane.rotation.z = time * 0.02;
+            plane2.rotation.z = time * 0.02;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
