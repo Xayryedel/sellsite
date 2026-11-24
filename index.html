@@ -10,7 +10,7 @@
         :root {
             --bg-color: #0b1120;
             --text-main: #f8fafc;
-            --text-muted: #cbd5e1; /* Сделал светлее для читаемости */
+            --text-muted: #cbd5e1;
             --accent: #38bdf8;
             --accent-2: #818cf8;
         }
@@ -41,35 +41,70 @@
             z-index: 10;
         }
 
-        /* ШАПКА */
+        /* ==========================================
+           ШАПКА (ШТОРКА)
+           ========================================== */
         nav {
             position: fixed;
             top: 0; left: 0; right: 0;
-            background: transparent;
             z-index: 100;
+            /* Начальное состояние: прозрачная, просторная */
+            background: transparent;
             padding: 30px 0;
-            transition: padding 0.3s;
+            /* Плавная анимация всех изменений */
+            transition: transform 0.4s ease-in-out, background 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease;
+            backdrop-filter: blur(0px);
         }
+
+        /* Класс для скрытия шапки при скролле вниз */
+        nav.nav-hidden {
+            transform: translateY(-100%);
+        }
+
+        /* Класс для "залипания" при скролле вверх */
+        nav.nav-scrolled {
+            background: rgba(11, 17, 32, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 15px 0; /* Уменьшаем высоту шторки */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
         .nav-content {
             max-width: 1100px; margin: 0 auto; padding: 0 20px;
             display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.4s ease;
         }
-        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+        
+        .logo { 
+            font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; 
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8); 
+            transition: font-size 0.4s ease;
+        }
         .logo span { color: var(--accent); }
+        
         .nav-links a {
             color: var(--text-muted); text-decoration: none; margin-left: 26px;
-            font-size: 0.95rem; transition: color 0.3s; font-weight: 500;
+            font-size: 0.95rem; transition: color 0.3s, font-size 0.4s; font-weight: 500;
             text-shadow: 0 2px 8px rgba(0,0,0,0.8);
         }
         .nav-links a:hover { color: var(--text-main); }
+        
         .nav-btn {
             padding: 10px 24px; border-radius: 30px;
             background: transparent;
             border: 1px solid var(--accent);
             color: var(--accent); font-weight: 600; text-decoration: none;
             transition: 0.3s; margin-left: 20px;
+            font-size: 1rem;
         }
         .nav-btn:hover { background: var(--accent); color: #0b1120; box-shadow: 0 0 15px rgba(56,189,248,0.4); }
+        
+        /* Уменьшаем элементы при скролле */
+        nav.nav-scrolled .logo { font-size: 1.1rem; }
+        nav.nav-scrolled .nav-links a { font-size: 0.9rem; }
+        nav.nav-scrolled .nav-btn { padding: 8px 20px; font-size: 0.9rem; }
+
         .burger { display: none; font-size: 1.6rem; background: none; border: none; color: var(--text-main); cursor: pointer; }
 
         /* ПЕРВЫЙ ЭКРАН */
@@ -100,7 +135,7 @@
             font-weight: 800;
             margin-bottom: 20px;
             line-height: 1.1;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.9); /* Усиленная тень */
+            text-shadow: 0 4px 20px rgba(0,0,0,0.9);
         }
         .hero h1 span {
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
@@ -112,7 +147,7 @@
             color: var(--text-muted);
             max-width: 650px;
             margin-bottom: 40px;
-            text-shadow: 0 2px 12px rgba(0,0,0,0.9); /* Усиленная тень */
+            text-shadow: 0 2px 12px rgba(0,0,0,0.9);
         }
         .btn {
             display: inline-block;
@@ -272,6 +307,8 @@
             .nav-links { display: none; }
             .nav-btn { display: none; }
             .burger { display: block; }
+            nav { padding: 20px 0; }
+            nav.nav-scrolled { padding: 12px 0; }
             .hero h1 { font-size: 2.5rem; }
             .contact-wrap { grid-template-columns: 1fr; gap: 40px; }
             .section { padding: 80px 20px; }
@@ -287,7 +324,9 @@
 
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div class="content-layer">
-        <nav>
+        
+        <!-- ШАПКА-ШТОРКА -->
+        <nav id="navbar">
             <div class="nav-content">
                 <div class="logo">Роман<span>Рыжков</span></div>
                 <div class="nav-links">
@@ -400,8 +439,37 @@
 
     <!-- СКРИПТЫ -->
     <script>
+        // Мобильное меню
         document.getElementById('burger').addEventListener('click', function() {
             alert('Используйте кнопку "Связаться" или прокрутите вниз.');
+        });
+
+        // ==========================================
+        // ЛОГИКА ШАПКИ-ШТОРКИ ПРИ СКРОЛЛЕ
+        // ==========================================
+        const navbar = document.getElementById('navbar');
+        let lastScrollY = window.scrollY;
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+
+            // Если прокрутили больше 50px, добавляем класс "залипания" (фон, уменьшение)
+            if (currentScrollY > 50) {
+                navbar.classList.add('nav-scrolled');
+            } else {
+                navbar.classList.remove('nav-scrolled');
+            }
+
+            // Логика скрытия/показа
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                // Скроллим вниз — прячем шапку
+                navbar.classList.add('nav-hidden');
+            } else {
+                // Скроллим вверх — показываем шапку
+                navbar.classList.remove('nav-hidden');
+            }
+
+            lastScrollY = currentScrollY;
         });
 
         // ==========================================
@@ -425,7 +493,6 @@
         
         const geometry = new THREE.PlaneGeometry(width, depth, segments, segments);
         
-        // Сделал чуть прозрачнее для лучшей читаемости
         const material = new THREE.MeshBasicMaterial({ 
             color: 0x38bdf8, 
             wireframe: true,
@@ -461,7 +528,6 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            // Замедлили время анимации (было 1.5, стало 0.5)
             const time = clock.getElapsedTime() * 0.5; 
 
             const positions = geometry.attributes.position.array;
@@ -470,7 +536,6 @@
                 const x = positions[i];
                 const y = positions[i + 1]; 
 
-                // Замедленные волны
                 const waveX = Math.sin(x * 0.5 + time * 0.8) * 0.5;
                 const waveY = Math.cos(y * 0.5 + time * 0.6) * 0.5;
                 const waveCombo = Math.sin(x * 0.3 + y * 0.3 + time * 0.5) * 0.8;
@@ -480,12 +545,10 @@
 
             geometry.attributes.position.needsUpdate = true;
 
-            // Плавное движение камеры (тоже замедлил)
             camera.position.x += (mouseX * 2 - camera.position.x) * 0.03;
             camera.position.y += (mouseY * 1.5 + 2 - camera.position.y) * 0.03;
             camera.lookAt(scene.position);
 
-            // Вращение сцены (очень медленное)
             plane.rotation.z = time * 0.02;
             plane2.rotation.z = time * 0.02;
 
